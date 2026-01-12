@@ -1,10 +1,11 @@
 {
   "dependencies": {
     "express": "^5.2.1",
+    "express-session": "^1.18.2",
     "nodemon": "^3.1.11",
     "oracledb": "^6.10.0"
   },
   "scripts": {
-    "start":"nodemon app.js"
+    "start": "nodemon app.js"
   }
 }

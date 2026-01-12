@@ -4,273 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>게시판 목록</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR",
-          Arial, sans-serif;
-        background: #f6f7fb;
-        color: #222;
-      }
-
-      .container {
-        max-width: 1280px; /* ← 카드 전체 폭 증가 */
-        margin: 40px auto;
-        padding: 0 20px;
-      }
-
-      .header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 14px;
-      }
-
-      .title {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 800;
-        letter-spacing: -0.3px;
-      }
-
-      .sub {
-        margin: 6px 0 0;
-        font-size: 13px;
-        color: #666;
-      }
-
-      .card {
-        background: #fff;
-        border: 1px solid #e9e9ef;
-        border-radius: 14px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed; /* 핵심: 열폭 고정 */
-      }
-      thead th {
-        background: #fafafe;
-        font-weight: 700;
-        font-size: 13px;
-        color: #444;
-        text-align: left;
-        padding: 14px 14px;
-        border-bottom: 1px solid #ececf3;
-        white-space: nowrap;
-      }
-
-      tbody td {
-        padding: 14px 14px;
-        border-bottom: 1px solid #f0f0f6;
-        font-size: 14px;
-        vertical-align: middle;
-        text-align: left;
-      }
-
-      tbody tr:hover {
-        background: #fbfbff;
-      }
-
-      .col-no {
-        width: 80px;
-      }
-      .col-title {
-        width: auto;
-      }
-      .col-writer {
-        width: 140px;
-      }
-      .col-date {
-        width: 180px;
-      }
-      .col-views {
-        width: 100px;
-        text-align: right;
-      }
-
-      .title-link {
-        color: #1f3bd6;
-        text-decoration: none;
-        font-weight: 700;
-      }
-      .title-link:hover {
-        text-decoration: underline;
-      }
-
-      .muted {
-        color: #666;
-        font-size: 12px;
-      }
-
-      .footer-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 14px;
-        flex-wrap: wrap;
-      }
-
-      /* pagination */
-      .pagination {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-
-      .page-btn {
-        border: 1px solid #dfe1ee;
-        background: #fff;
-        padding: 8px 10px;
-        border-radius: 10px;
-        font-size: 13px;
-        cursor: pointer;
-        color: #333;
-        min-width: 38px;
-      }
-
-      .page-btn:hover {
-        background: #f3f4ff;
-        border-color: #cfd3ff;
-      }
-
-      .page-btn.active {
-        background: #1f3bd6;
-        color: #fff;
-        border-color: #1f3bd6;
-        font-weight: 700;
-      }
-
-      .page-btn:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-
-      /* search */
-      .search {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .search select,
-      .search input {
-        height: 38px;
-        border: 1px solid #dfe1ee;
-        border-radius: 10px;
-        padding: 0 10px;
-        font-size: 13px;
-        outline: none;
-        background: #fff;
-      }
-
-      .search input {
-        width: 220px;
-      }
-
-      .search button {
-        height: 38px;
-        border: 1px solid #1f3bd6;
-        background: #1f3bd6;
-        color: #fff;
-        padding: 0 14px;
-        border-radius: 10px;
-        font-size: 13px;
-        cursor: pointer;
-        font-weight: 700;
-      }
-      .search button:hover {
-        filter: brightness(0.95);
-      }
-
-      @media (max-width: 700px) {
-        .col-date {
-          display: none;
-        } /* 모바일에서는 작성일시 숨김 */
-        thead th.col-date,
-        tbody td.col-date {
-          display: none;
-        }
-        .search input {
-          width: 160px;
-        }
-      }
-      .footer-bar {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        padding: 14px;
-        gap: 10px;
-      }
-
-      /* 왼쪽 */
-      .footer-left {
-        display: flex;
-        justify-content: flex-start;
-      }
-
-      /* 가운데 */
-      .footer-center {
-        display: flex;
-        justify-content: center;
-      }
-
-      /* 오른쪽 */
-      .footer-right {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      /* 작성 버튼 */
-      .write-btn {
-        padding: 10px 16px;
-        border-radius: 12px;
-        border: 1px solid #1f3bd6;
-        background: #1f3bd6;
-        color: #fff;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-
-      .write-btn:hover {
-        filter: brightness(0.95);
-      }
-      /* 기본: th/td 패딩/정렬 통일 */
-      .board-table th,
-      .board-table td {
-        padding: 14px 16px;
-        vertical-align: middle;
-      }
-
-      /* 4번째 열(작성일시): 가운데 정렬 + 줄바꿈 방지 */
-      .board-table th:nth-child(4),
-      .board-table td:nth-child(4) {
-        text-align: center;
-        white-space: nowrap;
-      }
-
-      /* 5번째 열(조회수): 오른쪽 정렬 + 숫자 자리 정돈 */
-      .board-table th:nth-child(5),
-      .board-table td:nth-child(5) {
-        text-align: left;
-        white-space: nowrap;
-        padding-right: 20px; /* 오른쪽 끝 여백 조금 더 */
-        font-variant-numeric: tabular-nums; /* 숫자 폭 일정(지원 브라우저) */
-      }
-    </style>
+    <link rel="stylesheet" href="/css/boards.css" />
   </head>
   <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <span class="site-logo">MyBoard</span>
+        <a href="/login.html" class="site-login-link">로그인</a>
+      </div>
+    </header>
     <div class="container">
       <div class="header">
         <div>
@@ -352,9 +94,7 @@
         <div class="footer-bar">
           <!-- 왼쪽 : 작성 버튼 -->
           <div class="footer-left">
-            <button class="write-btn" onclick="location.href='write.html'">
-              게시글 작성
-            </button>
+            <button class="write-btn">게시글 작성</button>
           </div>
 
           <!-- 가운데 : 페이지네이션 -->
@@ -384,11 +124,11 @@
                 id="word"
               />
               <button type="submit">검색</button>
-              <script src="js/boards.js"></script>
             </form>
           </div>
         </div>
       </div>
     </div>
+    <script src="js/boards.js"></script>
   </body>
 </html>

@@ -3,19 +3,9 @@ getme();
 async function getme() {
   const result = await fetch("/me");
   const me = await result.json();
-  console.log(me);
-  login = me;
-  console.log(login);
-  if (result.status == 200) {
-    const link = document.querySelector("header a");
-    link.innerText = "로그아웃";
-    link.href = "";
-    link.addEventListener("click", async (e) => {
-      fetch("/logout", {
-        method: "post",
-      });
-      alert("로그아웃 되었습니다");
-    });
+  if (me.grade != "master") {
+    alert("관리자 전용 페이지 입니다");
+    // location.href = "/boards.html";
   }
 }
 const urlParams = new URLSearchParams(location.search);
@@ -26,26 +16,18 @@ let page_num = 1;
 let qry_cnt = 0;
 const viewcnt = 10;
 const search_form = document.querySelector(".search");
-search_form.addEventListener("submit", (e) => {
+document.querySelector("#searchbtn").addEventListener("submit", (e) => {
   e.preventDefault();
   word = document.querySelector("#word").value;
   if (word == "") {
     return;
   }
   sta = document.querySelector("select").value;
-  location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
-});
-document.querySelector(".write-btn").addEventListener("click", (e) => {
-  if (login.id) {
-    location.href = "/board_write.html";
-  } else {
-    alert("로그인 후 이용 가능합니다");
-    location.href = "/login.html";
-  }
+  location.href = `http://localhost:3000/admin_users.html?page=${page}&sta=${sta}&word=${word}`;
 });
 async function getList() {
   try {
-    const res = await fetch(`/boards?page=${page}&sta=${sta}&word=${word}`);
+    const res = await fetch(`/users?page=${page}&sta=${sta}&word=${word}`);
     const result = await res.json();
     await getcount();
     page_num = Math.ceil(qry_cnt / viewcnt);
@@ -58,9 +40,7 @@ async function getList() {
 }
 getList();
 async function getcount() {
-  const res = await fetch(
-    `/getboardcount?page=${page}&sta=${sta}&word=${word}`
-  );
+  const res = await fetch(`/getusercount?page=${page}&sta=${sta}&word=${word}`);
   const result = await res.json();
   qry_cnt = result[0].COUNT;
 }
@@ -76,7 +56,7 @@ function printlist(list) {
         td.innerText = new Date(element).toLocaleString();
       } else if (key == "TITLE") {
         const a = document.createElement("a");
-        a.href = `http://localhost:3000/board.html?board_no=${elements["BOARD_NO"]}`;
+        a.href = `http://localhost:3000/admin_user.html?board_no=${elements["BOARD_NO"]}`;
         a.innerText = elements[key];
         td.appendChild(a);
       } else {
@@ -89,6 +69,7 @@ function printlist(list) {
   });
 }
 
+//페이지
 function printPageNum(now_page = 1) {
   const pagingarea = document.querySelector(".pagination");
   pagingarea.innerHTML = "";
@@ -101,7 +82,7 @@ function printPageNum(now_page = 1) {
   button.className = "page-btn";
   button.addEventListener("click", (e) => {
     page = e.target.innerText;
-    location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+    location.href = `http://localhost:3000/admin_user.html?page=${page}&sta=${sta}&word=${word}`;
   });
   pagingarea.appendChild(button);
   for (
@@ -114,7 +95,7 @@ function printPageNum(now_page = 1) {
     button.className = "page-btn";
     button.addEventListener("click", (e) => {
       page = e.target.innerText;
-      location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+      location.href = `http://localhost:3000/admin_user.html?page=${page}&sta=${sta}&word=${word}`;
     });
     pagingarea.appendChild(button);
   }
@@ -123,7 +104,7 @@ function printPageNum(now_page = 1) {
   button.className = "page-btn";
   button.addEventListener("click", (e) => {
     page = e.target.innerText;
-    location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+    location.href = `http://localhost:3000/admin_user.html?page=${page}&sta=${sta}&word=${word}`;
   });
   pagingarea.appendChild(button);
 }
