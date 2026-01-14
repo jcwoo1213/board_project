@@ -14,14 +14,14 @@
           <div class="logo">A</div>
           <div class="brand-text">
             <div class="brand-title">Admin</div>
-            <div class="brand-sub">Management</div>
+            <div class="brand-sub">Master</div>
           </div>
         </div>
 
         <nav class="nav">
           <a class="nav-item" href="#">대시보드</a>
-          <a class="nav-item active" href="#">유저 관리</a>
-          <a class="nav-item" href="#">글 관리</a>
+          <a class="nav-item active" href="admin_user.html">유저 관리</a>
+          <a class="nav-item" href="admin_boards.html">글 관리</a>
         </nav>
 
         <div class="sidebar-footer">
@@ -44,10 +44,10 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <select class="select">
-                <option>전체</option>
-                <option>ID</option>
-                <option>이름</option>
-                <option>Email</option>
+                <option value="">항목선택</option>
+                <option value="id">ID</option>
+                <option value="name">이름</option>
+                <option value="email">Email</option>
               </select>
 
               <div class="search">
@@ -55,6 +55,7 @@
                   class="input"
                   type="text"
                   placeholder="검색어를 입력하세요"
+                  id="word"
                 />
                 <button class="btn" id="searchbtn">검색</button>
               </div>
@@ -69,6 +70,7 @@
                   <th style="width: 22%">ID</th>
                   <th style="width: 20%">이름</th>
                   <th>Email</th>
+                  <th>grade</th>
                   <th style="width: 14%">관리</th>
                 </tr>
               </thead>
@@ -118,6 +120,6 @@
         </section>
       </main>
     </div>
-    <script src="admin_user.js"></script>
+    <script src="js/admin_user.js"></script>
   </body>
 </html>

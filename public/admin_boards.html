@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>관리자 - 글 관리</title>
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">A</div>
+          <div class="brand-text">
+            <div class="brand-title">Admin</div>
+            <div class="brand-sub">Management</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a class="nav-item" href="#">대시보드</a>
+          <a class="nav-item" href="admin_user.html">유저 관리</a>
+          <a class="nav-item active" href="admin_boards.html">글 관리</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a class="logout" href="#">로그아웃</a>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <header class="page-header">
+          <div>
+            <h1 class="page-title">글 관리</h1>
+            <p class="page-desc">게시글을 조회하고 관리할 수 있어요.</p>
+          </div>
+          <div class="pill">Total 356</div>
+        </header>
+
+        <section class="card">
+          <!-- 검색 영역 (FORM) -->
+          <form class="toolbar" onsubmit="return false;">
+            <div class="toolbar-left">
+              <select class="select" name="field">
+                <option value="">전체</option>
+                <option value="title">제목</option>
+                <option value="writer">작성자</option>
+              </select>
+
+              <div class="search">
+                <input
+                  class="input"
+                  type="text"
+                  name="q"
+                  placeholder="검색어를 입력하세요"
+                />
+                <button class="btn" type="submit">검색</button>
+              </div>
+            </div>
+
+            <div class="toolbar-right">
+              <a class="btn ghost" href="/admin/posts">초기화</a>
+            </div>
+          </form>
+
+          <!-- 게시글 테이블 -->
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 10%">번호</th>
+                  <th>제목</th>
+                  <th style="width: 18%">작성자</th>
+                  <th style="width: 18%">작성일</th>
+                  <th style="width: 18%">조회수</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">356</td>
+                  <td>게시판 테스트 글입니다</td>
+                  <td>hong</td>
+                  <td>2026-01-13</td>
+                </tr>
+                <tr>
+                  <td class="mono">355</td>
+                  <td>공지사항 안내</td>
+                  <td>admin</td>
+                  <td>2026-01-12</td>
+                </tr>
+                <tr>
+                  <td class="mono">354</td>
+                  <td>자유게시판 글 예시</td>
+                  <td>kim</td>
+                  <td>2026-01-11</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 페이지네이션 -->
+          <div class="pagination">
+            <button class="page-btn" type="button">이전</button>
+
+            <div class="page-nums">
+              <button class="page-num active" type="button">1</button>
+              <button class="page-num" type="button">2</button>
+              <button class="page-num" type="button">3</button>
+              <button class="page-num" type="button">4</button>
+              <button class="page-num" type="button">5</button>
+            </div>
+
+            <button class="page-btn" type="button">다음</button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="js/admin_boards.js"></script>
+  </body>
+</html>

@@ -1,15 +1,15 @@
 const express = require("express");
 const session = require("express-session");
 const app = express();
-app.use(express.static("html")); //public폴더를 사용한다고 알려줌
+app.use(express.static("public")); //public폴더를 사용한다고 알려줌
 app.use(express.json()); //json()
 app.use(
   session({
-    secret: "my-secret-key", // 아무 문자열이나 OK (운영에선 환경변수)
-    resave: false,
-    saveUninitialized: false,
+    secret: "my-secret-key", // 암호화 위한 키
+    resave: false, //세션 변경없어도 업데이트
+    saveUninitialized: false, //세션값 없어도 요청시마다 세션 생성
     cookie: {
-      httpOnly: true,
+      httpOnly: true, //http로만 접근가능
       // sameSite, secure는 지금 구조에선 건드릴 필요 없음
     },
   })
@@ -22,7 +22,7 @@ app.listen(3000, () => {
 
 //총 개시글 갯수
 app.get("/getboardcount", async (req, res) => {
-  const page = Number(req.query.page); //페이지넘버
+  // const page = Number(req.query.page); //페이지넘버
   const sta = req.query.sta; //기준
   const word = req.query.word; //단어
   let qry = `select count(*) count from board`;
@@ -51,7 +51,7 @@ app.get("/boards", async (req, res) => {
     maxRn: page * 10,
     minRn: (page - 1) * 10,
   };
-  if (sta != "" && sta != "title" && title == "writer") {
+  if (sta != "" && sta != "title" && sta != "writer") {
     console.log("잘못된접근");
     return;
   }
@@ -108,7 +108,7 @@ app.get("/count", async (req, res) => {
 app.post("/board_write", async (req, res) => {
   const { title, content, writer } = req.body;
   console.log(req.body);
-  const qry = `insert into board(board_no,title,content,writer) values(board_no_seq.nextval,':title',':content',':writer')`;
+  const qry = `insert into board(board_no,title,content,writer) values(board_no_seq.nextval,:title,:content,:writer)`;
   try {
     const connection = await db.getConnection();
     const result = await connection.execute(qry, { title, content, writer });
@@ -175,12 +175,12 @@ app.delete("/delete/:board_no/:writer", async (req, res) => {
 //중복체크
 app.get("/check", async (req, res) => {
   // console.log(req.query);
-  const tartget = req.query.id;
+  const target = req.query.id;
   try {
     const connection = await db.getConnection();
     const qry = `select id from users where id=:target`;
-    console.log(qry);
-    const result = await connection.execute(qry, tartget);
+    // console.log(qry);
+    const result = await connection.execute(qry, { target });
     if (result.rows.length == 0) {
       res.json({ code: "200", usable: "사용가능" });
     } else {
@@ -208,8 +208,12 @@ app.post("/signup", async (req, res) => {
     res.send(error);
   }
 });
-//유저 목록
+//유저 목록(관리자 전용)
 app.get("/users", async (req, res) => {
+  if (req.session.user.grade != "master") {
+    console.log("잘못된접근");
+    return;
+  }
   const page = Math.max(Number(req.query.page), 1) || 1; //페이지넘버
   const sta = req.query.sta || ""; //기준
   const word = req.query.word || ""; //단어
@@ -217,18 +221,18 @@ app.get("/users", async (req, res) => {
     maxRn: page * 10,
     minRn: (page - 1) * 10,
   };
-  if (sta != "" && sta != "id" && title == "name" && title != "email") {
+  if (sta != "" && sta != "id" && sta != "name" && sta != "email") {
     console.log("잘못된접근");
     return;
   }
-  let subqry = `select id,user_name,email from users `;
+  let subqry = `select id,user_name,email,grade,canuse from users `;
 
   if (sta != "") {
     subqry += ` WHERE ${sta} like '%${word}%'`;
   }
   subqry += `ORDER BY GRADE`;
 
-  let mainqry = `SELECT id,user_name,email from(SELECT ROWNUM rn,b1.* FROM(${subqry}) b1 WHERE  ROWNUM <=
+  let mainqry = `SELECT id,user_name,email,grade,canuse from(SELECT ROWNUM rn,b1.* FROM(${subqry}) b1 WHERE  ROWNUM <=
     :maxRn
   )WHERE rn>:minRn`;
   try {
@@ -243,11 +247,20 @@ app.get("/users", async (req, res) => {
     });
   }
 });
-//유저수
+//유저수(관리자 전용)
 app.get("/getusercount", async (req, res) => {
-  const page = Number(req.query.page); //페이지넘버
+  if (req.session.user.grade != "master") {
+    console.log("잘못된접근");
+    return;
+  }
+
+  // const page = Number(req.query.page); //페이지넘버
   const sta = req.query.sta; //기준
   const word = req.query.word; //단어
+  if (sta != "" && sta != "id" && sta != "name" && sta != "email") {
+    console.log("잘못된접근");
+    return;
+  }
   let qry = `select count(*) count from users`;
   if (sta != "") {
     qry += ` WHERE ${sta} like '%${word}%'`;
@@ -264,6 +277,67 @@ app.get("/getusercount", async (req, res) => {
     });
   }
 });
+//활성화 비활성화 (관리자 전용)
+app.post("/updateuser", async (req, res) => {
+  if (req.session.user.grade != "master") {
+    console.log("잘못된접근");
+    return;
+  }
+  const id = req.body.id;
+  const canuse = req.body.canuse == "true" ? "false" : "true";
+  try {
+    const connection = await db.getConnection();
+    const qry = `update users set canuse=:canuse where id=:id`;
+    const result = await connection.execute(qry, { id, canuse });
+    connection.commit();
+    console.log(result);
+    res.json({ retcode: "20", remsg: "success" });
+  } catch (error) {
+    console.log(error);
+    res.json({ retcode: "40", remsg: "error" });
+  }
+});
+//유저 상세 보기
+app.get("/user", async (req, res) => {
+  // if (req.session.user.grade != "master") {
+  //   console.log("잘못된접근");
+  //   return;
+  // }
+  const id = req.query.id;
+  try {
+    const connection = await db.getConnection();
+    const qry =
+      "select id,user_name,email,grade,canuse from users where id=:id";
+    const result = await connection.execute(qry, { id });
+    console.log(result);
+    res.json(result.rows);
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
+//유저의 게시글
+app.get("/getboardlist", async (req, res) => {
+  // if (req.session.user.grade != "master") {
+  //   console.log("잘못된접근");
+  //   return;
+  // }
+
+  const id = req.query.id; //단어
+  let qry = `select board_no,title,write_date,count from board where writer=:id`;
+
+  try {
+    const connection = await db.getConnection();
+    const result = await connection.execute(qry, { id });
+    res.json(result.rows);
+  } catch (err) {
+    console.log(err);
+    res.json({
+      retcode: "NG",
+      remsg: "오류",
+    });
+  }
+});
 //아래는 로그인 관련 ///////////////////////////////////////////////////////////////
 //로그인
 app.post("/login", async (req, res) => {
@@ -271,12 +345,13 @@ app.post("/login", async (req, res) => {
   console.log(user);
   try {
     const connection = await db.getConnection();
-    const qry = `select * from users where id=:id and password=:pw`;
+    const qry = `select * from users where id=:id and password=:pw and canuse='true'`;
     const result = await connection.execute(qry, user);
     console.log(result.rows);
     const rows = result.rows;
     const login = rows[0];
     req.session.user = {
+      //세션에 user라는 개체로 정보 저장
       id: login.ID,
       name: login.USER_NAME,
       grade: login.GRADE,
@@ -297,10 +372,12 @@ app.post("/login", async (req, res) => {
 app.get("/me", (req, res) => {
   // console.log("ME sessionID:", req.sessionID, req.session.user);
   if (!req.session.user) {
+    //세션에 저장된거 있나 확인
     return res.status(401).json({ login: false });
     // 또는: return res.json({ login: false });
   }
   res.status(200).json({
+    //저장된거 리턴
     id: req.session.user.id,
     name: req.session.user.name,
     grade: req.session.user.grade,
@@ -312,7 +389,7 @@ app.post("/logout", (req, res) => {
     if (err) return res.status(500).send("로그아웃 실패");
 
     // 세션 쿠키 이름이 기본(connect.sid)일 때
-    res.clearCookie("connect.sid");
+    res.clearCookie("connect.sid"); //해당 아이디로 저장되어있는 쿠키 삭제
     res.send("ok");
-  });
+  }); //세션 삭제
 });

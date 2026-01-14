@@ -1,5 +1,6 @@
 let login;
 getme();
+//로그인 정보 받아오기
 async function getme() {
   const result = await fetch("/me");
   const me = await result.json();
@@ -17,6 +18,11 @@ async function getme() {
       alert("로그아웃 되었습니다");
       location.replace();
     });
+
+    if (me.grade == "master") {
+      const admin = document.querySelector("#goadmin");
+      admin.style.display = "inline";
+    }
   }
 }
 let board;
@@ -141,7 +147,7 @@ async function Delete() {
   });
   if ((await result.text()) == "성공") {
     alert("삭제되었습니다");
-    location.href = "http://localhost:3000/boards.html";
+    location.href = "boards.html";
   } else {
     alert("삭제실패");
     console.log(result);

@@ -1,5 +1,6 @@
+//회원가입 영역
 let id;
-
+//중복체크
 async function check() {
   id = document.querySelector("#userId").value;
   const res = await fetch(`/check?id=${id}`);
@@ -16,10 +17,11 @@ async function check() {
     console.log(res);
   }
 }
+//id 변경되면 중복체크 안했다고 변경
 document.querySelector("#userId").addEventListener("input", () => {
   document.querySelector("#usable").value = "false";
 });
-
+//회원가입
 document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
   id = document.querySelector("#userId");

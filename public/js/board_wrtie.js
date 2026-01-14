@@ -1,5 +1,6 @@
 let login;
 getme();
+//로그인 했는지 검사
 async function getme() {
   const result = await fetch("/me");
   const me = await result.json();
@@ -17,9 +18,11 @@ async function getme() {
       alert("로그아웃 되었습니다");
       location.replace();
     });
-  } else {
-    alert("로그인 후 이용할수 있습니다");
-    location.href = "/boards.html";
+
+    if (me.grade == "master") {
+      const admin = document.querySelector("#goadmin");
+      admin.style.display = "inline";
+    }
   }
 }
 //작성
@@ -40,7 +43,7 @@ document.querySelector("form").addEventListener("submit", (e) => {
       console.log(result);
       if (result.title == title && result.content == content) {
         alert("정상적으로 처리되었습니다");
-        window.location.href = "http://localhost:3000/boards.html";
+        window.location.href = "boards.html";
       } else {
         alert("실패하였습니다");
       }

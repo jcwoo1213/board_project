@@ -15,14 +15,6 @@ body {
   padding: 0 20px;
 }
 
-.header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
 .title {
   margin: 0;
   font-size: 22px;
@@ -262,44 +254,46 @@ tbody tr:hover {
   font-variant-numeric: tabular-nums; /* 숫자 폭 일정(지원 브라우저) */
 }
 
-site-header {
+.header {
   width: 100%;
   height: 60px;
   background: #f5f5f5;
   border-bottom: 1px solid #ddd;
-  position: relative;
 }
 
-.site-header-inner {
+.header-inner {
   max-width: 1200px;
-  margin: 0 auto;
   height: 100%;
-  position: relative;
+  margin: 0 auto;
   padding: 0 20px;
-  box-sizing: border-box;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* 🔥 핵심 */
+  align-items: center;
 }
 
-/* MyBoard → 화면 정중앙 */
-.site-logo {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+/* 중앙 */
+.logo {
+  grid-column: 2;
+  justify-self: center;
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.3px;
 }
 
-/* 로그인 → 오른쪽 끝 */
-.site-login-link {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+/* 오른쪽 */
+.header-right {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  gap: 14px;
+}
+
+.header-right a {
   text-decoration: none;
   font-weight: 700;
   color: #333;
 }
-.site-login-link:hover {
+
+.header-right a:hover {
   text-decoration: underline;
 }

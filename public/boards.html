@@ -4,13 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>게시판 목록</title>
-    <link rel="stylesheet" href="/css/boards.css" />
+    <link rel="stylesheet" href="css/boards.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header-inner">
-        <span class="site-logo">MyBoard</span>
-        <a href="/login.html" class="site-login-link">로그인</a>
+    <header class="header">
+      <div class="header-inner">
+        <span class="logo">MyBoard</span>
+
+        <div class="header-right">
+          <a href="/login.html">로그인</a>
+          <a href="/admin_user.html" id="goadmin" style="display: none"
+            >관리자 페이지</a
+          >
+        </div>
       </div>
     </header>
     <div class="container">
@@ -114,6 +120,7 @@
           <div class="footer-right">
             <form class="search" onsubmit="return false;">
               <select aria-label="검색 조건" id="sta">
+                <option value="">항목선택</option>
                 <option value="title">제목</option>
                 <option value="writer">작성자</option>
               </select>

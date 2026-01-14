@@ -1,21 +1,28 @@
 let login;
 getme();
+//로그인 여부
 async function getme() {
   const result = await fetch("/me");
   const me = await result.json();
-  console.log(me);
+  // console.log(me);
   login = me;
-  console.log(login);
+  // console.log(login);
   if (result.status == 200) {
     const link = document.querySelector("header a");
     link.innerText = "로그아웃";
     link.href = "";
     link.addEventListener("click", async (e) => {
-      fetch("/logout", {
+      await fetch("/logout", {
         method: "post",
       });
       alert("로그아웃 되었습니다");
+      location.replace();
     });
+
+    if (me.grade == "master") {
+      const admin = document.querySelector("#goadmin");
+      admin.style.display = "inline";
+    }
   }
 }
 const urlParams = new URLSearchParams(location.search);
@@ -26,15 +33,19 @@ let page_num = 1;
 let qry_cnt = 0;
 const viewcnt = 10;
 const search_form = document.querySelector(".search");
+document.querySelector("select").value = sta;
+document.querySelector("#word").value = word;
+//검색 되었을때
 search_form.addEventListener("submit", (e) => {
   e.preventDefault();
-  word = document.querySelector("#word").value;
-  if (word == "") {
-    return;
-  }
+  word = document.querySelector("#word").value.trim();
   sta = document.querySelector("select").value;
-  location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+  if (sta == "" || word == "") {
+    return; //필터나 단어 없으면 실행하지않음
+  }
+  location.href = `boards.html?sta=${sta}&word=${word}`;
 });
+//글작성 버튼 이벤트
 document.querySelector(".write-btn").addEventListener("click", (e) => {
   if (login.id) {
     location.href = "/board_write.html";
@@ -43,11 +54,13 @@ document.querySelector(".write-btn").addEventListener("click", (e) => {
     location.href = "/login.html";
   }
 });
+//리스트 받아오기
 async function getList() {
   try {
     const res = await fetch(`/boards?page=${page}&sta=${sta}&word=${word}`);
     const result = await res.json();
     await getcount();
+
     page_num = Math.ceil(qry_cnt / viewcnt);
     printlist(result);
     printPageNum(page);
@@ -57,6 +70,7 @@ async function getList() {
   }
 }
 getList();
+//글 갯수 받아오기
 async function getcount() {
   const res = await fetch(
     `/getboardcount?page=${page}&sta=${sta}&word=${word}`
@@ -76,7 +90,7 @@ function printlist(list) {
         td.innerText = new Date(element).toLocaleString();
       } else if (key == "TITLE") {
         const a = document.createElement("a");
-        a.href = `http://localhost:3000/board.html?board_no=${elements["BOARD_NO"]}`;
+        a.href = `board.html?board_no=${elements["BOARD_NO"]}`;
         a.innerText = elements[key];
         td.appendChild(a);
       } else {
@@ -89,6 +103,7 @@ function printlist(list) {
   });
 }
 
+//페이지 바 출력
 function printPageNum(now_page = 1) {
   const pagingarea = document.querySelector(".pagination");
   pagingarea.innerHTML = "";
@@ -97,33 +112,34 @@ function printPageNum(now_page = 1) {
   console.log(now_page);
   let button;
   button = document.createElement("button");
-  button.innerText = 1;
+  button.innerText = "<<";
   button.className = "page-btn";
   button.addEventListener("click", (e) => {
-    page = e.target.innerText;
-    location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+    page = 1;
+    location.href = `boards.html?page=${page}&sta=${sta}&word=${word}`;
   });
   pagingarea.appendChild(button);
   for (
-    let i = Math.max(2, now_page - 2);
-    i <= Math.min(page_num - 1, now_page + 2);
+    let i = Math.max(1, now_page - 2);
+    i <= Math.min(page_num, now_page + 2);
     i++
   ) {
     button = document.createElement("button");
     button.innerText = i;
     button.className = "page-btn";
+
     button.addEventListener("click", (e) => {
       page = e.target.innerText;
-      location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+      location.href = `boards.html?page=${page}&sta=${sta}&word=${word}`;
     });
     pagingarea.appendChild(button);
   }
   button = document.createElement("button");
-  button.innerText = page_num;
+  button.innerText = ">>";
   button.className = "page-btn";
   button.addEventListener("click", (e) => {
-    page = e.target.innerText;
-    location.href = `http://localhost:3000/boards.html?page=${page}&sta=${sta}&word=${word}`;
+    page = page_num;
+    location.href = `boards.html?page=${page}&sta=${sta}&word=${word}`;
   });
   pagingarea.appendChild(button);
 }

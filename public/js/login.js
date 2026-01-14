@@ -1,3 +1,4 @@
+//로그인
 document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.querySelector("#userId").value;
