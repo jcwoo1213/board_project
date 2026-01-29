@@ -1,6 +1,9 @@
 let login;
+let flag = false;
 getme();
 //로그인 했는지 검사
+const titleArea = document.querySelector(`input[name="title"]`);
+const contentArea = document.querySelector(`textarea[name="content"]`);
 async function getme() {
   const result = await fetch("/me");
   const me = await result.json();
@@ -23,8 +26,20 @@ async function getme() {
       const admin = document.querySelector("#goadmin");
       admin.style.display = "inline";
     }
+    const res = await fetch(`/draft/${login.id}`);
+    const draft = await res.json();
+    // console.log(draft);
+    if (draft.board) {
+      titleArea.value = draft.board.TITLE;
+      contentArea.value = draft.board.CONTENT;
+    }
+  } else {
+    alert("로그인 후 사용가능합니다");
+    falg = true;
+    location.href = "login.html";
   }
 }
+
 //작성
 document.querySelector("form").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -43,6 +58,7 @@ document.querySelector("form").addEventListener("submit", (e) => {
       console.log(result);
       if (result.title == title && result.content == content) {
         alert("정상적으로 처리되었습니다");
+        flag = true;
         window.location.href = "boards.html";
       } else {
         alert("실패하였습니다");
@@ -51,4 +67,19 @@ document.querySelector("form").addEventListener("submit", (e) => {
     .catch((err) => {
       console.log(err);
     });
+});
+window.addEventListener("pagehide", () => {
+  if (flag) {
+    return;
+  }
+  console.log("pagehide on:", location.pathname);
+  console.log("title exists:", !!document.querySelector('input[name="title"]'));
+  const title = document.querySelector(`input[name="title"]`).value;
+  const content = document.querySelector(`textarea[name="content"]`).value;
+  const id = login.id;
+  const board = { title, content, id };
+  const payload = new Blob([JSON.stringify(board)], {
+    type: "application/json",
+  });
+  navigator.sendBeacon("/draft/create", payload);
 });

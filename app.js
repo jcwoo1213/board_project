@@ -12,7 +12,7 @@ app.use(
       httpOnly: true, //http로만 접근가능
       // sameSite, secure는 지금 구조에선 건드릴 필요 없음
     },
-  })
+  }),
 );
 const db = require("./db");
 const dir = "localhost:3000";
@@ -108,10 +108,12 @@ app.get("/count", async (req, res) => {
 app.post("/board_write", async (req, res) => {
   const { title, content, writer } = req.body;
   console.log(req.body);
-  const qry = `insert into board(board_no,title,content,writer) values(board_no_seq.nextval,:title,:content,:writer)`;
+  let qry = `insert into board(board_no,title,content,writer) values(board_no_seq.nextval,:title,:content,:writer)`;
   try {
     const connection = await db.getConnection();
     const result = await connection.execute(qry, { title, content, writer });
+    qry = `delete from draft where id=:writer`;
+    await connection.execute(qry, { writer });
     await connection.commit();
     res.json({
       title,
@@ -171,6 +173,44 @@ app.delete("/delete/:board_no/:writer", async (req, res) => {
   }
 });
 
+//임시 저장 생성 및 수정
+app.post("/draft/create", async (req, res) => {
+  // console.log("dd");
+  // console.log(req.body);
+  try {
+    const connection = await db.getConnection();
+    const { title, content, id } = req.body;
+    let query = "select * from draft where id=:id";
+    const check = await connection.execute(query, { id });
+    if (check.length) {
+      query = "update draft set title=:title,content=:content where id:id";
+    } else {
+      query = "insert into draft values(:id,:title,:content)";
+    }
+    const result = await connection.execute(query, { id, title, content });
+    connection.commit();
+    console.log(result);
+    res.json({ retCode: "OK", result });
+  } catch (error) {
+    console.log(error);
+    res.json({ retCode: "error", result });
+  }
+});
+
+//임시 저장 불러오기
+app.get("/draft/:id", async (req, res) => {
+  try {
+    const connection = await db.getConnection();
+    const id = req.params.id;
+    const query = "select title,content from draft where id=:id";
+    const result = await connection.execute(query, { id });
+    console.log(result.rows);
+    res.json({ retCode: "OK", board: result.rows[0] });
+  } catch (error) {
+    console.log(error);
+    res.json({ retCode: "error", result });
+  }
+});
 //여기서부터 유저 관련 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //중복체크
 app.get("/check", async (req, res) => {
